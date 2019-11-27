@@ -14,9 +14,6 @@ float rotate_xaxis = 0.0f;
 float rotate_yaxis = 0.0f;
 float rotate_zaxis = 0.0f;
 
-float arm_move_xaxis = 0.0f;
-float arm_move_yaxis = 0.0f;
-float arm_move_zaxis = 0.0f;
 float inner_arm_rotate = 0.0f;
 float inner_arm_move_xaxis = 0.0f;
 float inner_arm_move_yaxis = 0.0f;
@@ -113,20 +110,21 @@ void drawRobotArm() {
 	glPushMatrix();
 	glRotatef(arm_angleRotate, arm_rotate_xaxis, arm_rotate_yaxis, arm_rotate_zaxis);
 
+	// First 3D Rectangle
 	glPushMatrix();
 	glTranslatef(-0.5f, -0.1f, 0.0f);
 	drawRectangle();
 	glPopMatrix();
 
+	// Second 3D Rectangle
 	glPushMatrix();
-	glTranslatef(-arm_move_xaxis, -arm_move_yaxis, arm_move_zaxis);
-	glPushMatrix(); // Save Rotate
+	glTranslatef(0.0f, -0.1f, 0.0f); // Translate (Actual axis)
 	glRotatef(inner_arm_rotate, inner_arm_move_xaxis, inner_arm_move_yaxis, inner_arm_move_zaxis);
+	glTranslatef(0.0f, 0.1f, 0.0f); // Then After Rotate Translate Back to (Negative of Actual axis)
 	glPushMatrix();
-	glTranslatef(0.0f, -0.1f, 0.0f);
+	glTranslatef(0.0f, -0.1f, 0.0f); // Actual Axis
 	drawRectangle();
 	glPopMatrix();
-	glPopMatrix(); // End Save Rotate
 	glPopMatrix();
 
 	glPopMatrix(); // End of Rotate LEFT/RIGHT
@@ -196,9 +194,6 @@ LRESULT WINAPI WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 			// Reset Arm Up Down
 			arm_move_up_down = 0;
-			arm_move_xaxis = 0.0f;
-			arm_move_yaxis = 0.0f;
-			arm_move_zaxis = 0.0f;
 			inner_arm_rotate = 0.0f;
 			inner_arm_move_xaxis = 0.0f;
 			inner_arm_move_yaxis = 0.0f;
@@ -295,13 +290,20 @@ void display()
 		break;
 	case 2:
 		drawRobotArm();
+
 		switch (arm_rotate_left_right)
 		{
 		case 1:
 			arm_angleRotate += 0.01f;
+			if (arm_angleRotate > 45.0f) {
+				arm_angleRotate = 45.0f;
+			}
 			break;
 		case 2:
 			arm_angleRotate -= 0.01f;
+			if (arm_angleRotate < -45.0f) {
+				arm_angleRotate = -45.0f;
+			}
 			break;
 		default:
 			break;
@@ -314,27 +316,11 @@ void display()
 			if (inner_arm_rotate > 40) {
 				inner_arm_rotate = 40.0f;
 			}
-			arm_move_xaxis += 0.01f;
-			if (arm_move_xaxis > 0.07f) {
-				arm_move_xaxis = 0.07f;
-			}
-			arm_move_yaxis += 0.01f;
-			if (arm_move_yaxis > 0.02f) {
-				arm_move_yaxis = 0.02f;
-			}
 			break;
 		case 2:
 			inner_arm_rotate -= 0.01f;
 			if (inner_arm_rotate < 1.0f) {
 				inner_arm_rotate = 0.0f;
-			}
-			arm_move_xaxis -= 0.01f;
-			if (arm_move_xaxis < 1.0f) {
-				arm_move_xaxis = 0.0f;
-			}
-			arm_move_yaxis -= 0.01f;
-			if (arm_move_yaxis < 1.0f) {
-				arm_move_yaxis = 0.0f;
 			}
 			break;
 		default:
